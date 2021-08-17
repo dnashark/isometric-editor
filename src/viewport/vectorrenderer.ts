@@ -7,9 +7,28 @@ const WIDTH = 16;
 const STROKE = true;
 const STROKE_WIDTH = .5;
 const STROKE_COLOR = '#000';
+const ORIGIN = { u: 250, v: 250 };
+const SHOW_BACK = true;
 
 export default class VectorRenderer implements Renderer {
   render(voxelImage: VoxelImage<boolean>, context: CanvasRenderingContext2D): void {
+    if (SHOW_BACK) {
+      for (let x = 0; x < voxelImage.size.x; x++) {
+        for (let y = 0; y < voxelImage.size.y; y++) {
+          this.drawTopFace(x, y, -1, WIDTH, ORIGIN, context);
+        }
+      }
+      for (let x = 0; x < voxelImage.size.x; x++) {
+        for (let z = 0; z < voxelImage.size.z; z++) {
+          this.drawLeftFace(x, -1, z, WIDTH, ORIGIN, context);
+        }
+      }
+      for (let y = 0; y < voxelImage.size.y; y++) {
+        for (let z = 0; z < voxelImage.size.z; z++) {
+          this.drawRightFace(-1, y, z, WIDTH, ORIGIN, context);
+        }
+      }
+    }
     for (let z = 0; z < voxelImage.size.z; z++) {
       for (let y = 0; y < voxelImage.size.y; y++) {
         for (let x = 0; x < voxelImage.size.x; x++) {
@@ -22,9 +41,9 @@ export default class VectorRenderer implements Renderer {
   }
 
   private drawVoxel(x: number, y: number, z: number, context: CanvasRenderingContext2D) {
-    this.drawTopFace(x, y, z, WIDTH, { u: 250, v: 250 }, context);
-    this.drawRightFace(x, y, z, WIDTH, { u: 250, v: 250 }, context);
-    this.drawLeftFace(x, y, z, WIDTH, { u: 250, v: 250 }, context)
+    this.drawTopFace(x, y, z, WIDTH, ORIGIN, context);
+    this.drawRightFace(x, y, z, WIDTH, ORIGIN, context);
+    this.drawLeftFace(x, y, z, WIDTH, ORIGIN, context)
   }
 
   private convertToScreen(x: number, y: number, z: number, width: number): ScreenCoord {

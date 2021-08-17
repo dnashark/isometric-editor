@@ -26,10 +26,13 @@ export default class ViewportComponent extends React.Component<ViewportComponent
   }
 
   componentDidMount() {
-    const voxelImage = new BackingImage(5, 5, 5, false);
-    voxelImage.set(1, 0, 0, true);
-    voxelImage.set(0, 1, 0, true);
-    voxelImage.set(0, 0, 1, true);
+    const voxelImage = new BackingImage(20, 20, 20, false);
+    for (let x of [10, 11, 12]) {
+      for (let y of [10, 11, 12]) {
+        voxelImage.set(x, y, 0, true);
+      }
+    }
+    voxelImage.set(11, 11, 1, true);
     const renderer = new VectorRenderer();
     this.viewportController = new ViewportController(this.canvasRef.current!, voxelImage, renderer);
   }
