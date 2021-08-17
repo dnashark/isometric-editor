@@ -1,4 +1,4 @@
-import VoxelImage from './voxelimage';
+import {VoxelImage} from './voxelimage';
 
 export default interface Renderer {
   // TODO: need context for zoom, translate, etc...

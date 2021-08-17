@@ -1,11 +1,5 @@
 import { DEBUG } from '../consts';
-import VoxelImage from './voxelimage';
-
-interface Size {
-  readonly x: number,
-  readonly y: number,
-  readonly z: number,
-};
+import {VoxelImage, Size} from './voxelimage';
 
 export default class BackingImage<Type> implements VoxelImage<Type> {
   readonly size: Size;
@@ -20,7 +14,16 @@ export default class BackingImage<Type> implements VoxelImage<Type> {
 
   get(x: number, y: number, z: number): Type {
     if (DEBUG && !this.isValidCoordinates(x, y, z)) throw `Invalid coordinates {x: ${x}, y: ${y}, z: ${z}}`;
-    return this.image[x + y * this.size.x + z * this.size.x + this.size.y];
+    return this.image[this.getIndex(x, y, z)];
+  }
+
+  set(x: number, y: number, z: number, value: Type): void {
+    if (DEBUG && !this.isValidCoordinates(x, y, z)) throw `Invalid coordinates {x: ${x}, y: ${y}, z: ${z}}`;
+    this.image[this.getIndex(x, y, z)] = value;
+  }
+
+  private getIndex(x: number, y: number, z: number): number {
+    return z * this.size.x * this.size.y + y * this.size.x + x;
   }
 
   private isValidSize(x: number, y: number, z: number): boolean {

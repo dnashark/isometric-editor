@@ -1,5 +1,5 @@
 import Renderer from "./renderer";
-import VoxelImage from "./voxelimage";
+import {VoxelImage} from "./voxelimage";
 
 export default class ViewportController {
   private renderer: Renderer;
