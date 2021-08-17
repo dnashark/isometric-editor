@@ -1,9 +1,6 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { createRef } from "react";
-import { useRef, Ref } from "react"
-import { JsxElement } from "typescript";
 import BackingImage from "../viewport/backingvoxelimage";
-import Renderer from "../viewport/renderer";
 import VectorRenderer from "../viewport/vectorrenderer";
 import ViewportController from "../viewport/viewportcontroller";
 
@@ -15,14 +12,15 @@ interface ViewportComponentProps {
 
 export default class ViewportComponent extends React.Component<ViewportComponentProps> {
   private canvasRef = createRef<HTMLCanvasElement>();
-  private viewportController: ViewportController|null = null;
+  private viewportController: ViewportController | null = null;
 
   render() {
     return <canvas
       ref={this.canvasRef}
       width={this.props.width}
       height={this.props.height}
-      style={{ border: '1px solid black' }}></canvas>
+      style={{ border: '1px solid black' }}
+      onMouseMove={this.onMouseMove.bind(this)}></canvas>
   }
 
   componentDidMount() {
@@ -35,5 +33,12 @@ export default class ViewportComponent extends React.Component<ViewportComponent
     voxelImage.set(11, 11, 1, true);
     const renderer = new VectorRenderer();
     this.viewportController = new ViewportController(this.canvasRef.current!, voxelImage, renderer);
+  }
+
+  onMouseMove(event: React.MouseEvent<HTMLCanvasElement>) {
+    // TODO: Is this correct?
+    this.viewportController?.onMouseMove(
+      event.clientX - this.canvasRef.current!.offsetLeft,
+      event.clientY - this.canvasRef.current!.offsetTop);
   }
 }
