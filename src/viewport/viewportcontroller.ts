@@ -1,37 +1,51 @@
-import CoordinateFace from "../components/coordinateface";
-import Renderer from "./renderer";
+import Renderer, { Face } from "./renderer";
 import { VoxelImage } from "./voxelimage";
 
 export default class ViewportController {
   private renderer: Renderer;
   private canvas: HTMLCanvasElement;
   private image: VoxelImage<boolean>;
-  private hitTestedFace: CoordinateFace | null = null;
+  private hitTestedFace: Face | null = null;
 
   constructor(canvas: HTMLCanvasElement, image: VoxelImage<boolean>, renderer: Renderer) {
     this.canvas = canvas;
     this.image = image;
     this.renderer = renderer;
 
-
-    this.renderer.render(this.image, this.hitTestedFace, this.getContext());
+    this.render();
   }
 
   onMouseMove(u: number, v: number) {
     const context = this.getContext();
-    const newHitTestedFace = this.renderer.hitTest(this.image, u, v, this.getContext());
+    const newHitTestedFace = this.renderer.hitTest({
+      ctx: this.getContext(),
+      image: this.image,
+      viewport: { boxDiagonalWidth: 20, origin: { u: 250, v: 250 } },
+      coords: { u, v, },
+    });
 
     // TODO: Clean this ugly logic up
     if (!!newHitTestedFace != !!this.hitTestedFace) {
       this.hitTestedFace = newHitTestedFace;
-      this.renderer.render(this.image, this.hitTestedFace, context);
+      this.render();
     } else if (newHitTestedFace && this.hitTestedFace && (
-      newHitTestedFace.x != this.hitTestedFace.x || newHitTestedFace.y != this.hitTestedFace.y ||
-      newHitTestedFace.z != this.hitTestedFace.z || newHitTestedFace?.face != this.hitTestedFace.face)
+      newHitTestedFace.coords.x != this.hitTestedFace.coords.x || newHitTestedFace.coords.y != this.hitTestedFace.coords.y ||
+      newHitTestedFace.coords.z != this.hitTestedFace.coords.z || newHitTestedFace.facing != this.hitTestedFace.facing)
     ) {
       this.hitTestedFace = newHitTestedFace;
-      this.renderer.render(this.image, this.hitTestedFace, context);
+      this.render();
     }
+  }
+
+  private render() {
+    this.renderer.render({
+      ctx: this.getContext(),
+      image: this.image,
+      viewport: { boxDiagonalWidth: 25, origin: { u: 250, v: 250 } },
+      stroke: { width: 1, color: '#000' },
+      intercept: { stroke: { width: 1, color: '#555' }, fill: '#fff' },
+      overrides: this.hitTestedFace ? [{ face: this.hitTestedFace, color: 'red' }] : undefined,
+    });
   }
 
   private getContext(): CanvasRenderingContext2D {

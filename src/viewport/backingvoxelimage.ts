@@ -1,8 +1,8 @@
 import { DEBUG } from '../consts';
-import {VoxelImage, Size} from './voxelimage';
+import {VoxelImage, VoxelImageSize} from './voxelimage';
 
 export default class BackingImage<Type> implements VoxelImage<Type> {
-  readonly size: Size;
+  readonly size: VoxelImageSize;
   private image: Type[];
 
   constructor(x: number, y: number, z: number, value: Type) {
