@@ -1,7 +1,6 @@
-import {VoxelImage} from './voxelimage';
+import {VoxelImage, ImageCoordinates} from './voxelimage';
 
 export default interface Renderer {
-  // TODO: need context for zoom, translate, etc...
   render(params: RenderParameters): void,
   hitTest(params: HitTestParameters): Face | null,
 }
@@ -27,12 +26,6 @@ export enum Facing {
   LEFT = 'LEFT',
   RIGHT = 'RIGHT',
   TOP = 'TOP'
-}
-
-export interface ImageCoordinates {
-  x: number,
-  y: number,
-  z: number,
 }
 
 export interface Face {

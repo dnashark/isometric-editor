@@ -1,44 +1,44 @@
 import { DEBUG } from '../consts';
-import {VoxelImage, VoxelImageSize} from './voxelimage';
+import { ImageCoordinates, VoxelImage, VoxelImageSize } from './voxelimage';
 
 export default class BackingImage<Type> implements VoxelImage<Type> {
   readonly size: VoxelImageSize;
   private image: Type[];
 
-  constructor(x: number, y: number, z: number, value: Type) {
-    if (DEBUG && !this.isValidSize(x, y, z)) throw `Invalid size {x: ${x}, y: ${y}, z: ${z}}`;
-    this.size = {x, y, z,};
-    this.image = new Array(x * y * z);
+  constructor(size: VoxelImageSize, value: Type) {
+    if (DEBUG && !this.isValidSize(size)) throw `Invalid size {x: ${size.x}, y: ${size.y}, z: ${size.z}}`;
+    this.size = size;
+    this.image = new Array(size.x * size.y * size.z);
     this.image.fill(value);
   }
 
-  get(x: number, y: number, z: number): Type {
-    if (DEBUG && !this.isValidCoordinates(x, y, z)) throw `Invalid coordinates {x: ${x}, y: ${y}, z: ${z}}`;
-    return this.image[this.getIndex(x, y, z)];
+  get(coords: ImageCoordinates): Type {
+    if (DEBUG && !this.isValidCoordinates(coords)) throw `Invalid coordinates {x: ${coords.x}, y: ${coords.y}, z: ${coords.z}}`;
+    return this.image[this.getIndex(coords)];
   }
 
-  set(x: number, y: number, z: number, value: Type): void {
-    if (DEBUG && !this.isValidCoordinates(x, y, z)) throw `Invalid coordinates {x: ${x}, y: ${y}, z: ${z}}`;
-    this.image[this.getIndex(x, y, z)] = value;
+  set(coords: ImageCoordinates, value: Type): void {
+    if (DEBUG && !this.isValidCoordinates(coords)) throw `Invalid coordinates {x: ${coords.x}, y: ${coords.y}, z: ${coords.z}}`;
+    this.image[this.getIndex(coords)] = value;
   }
 
-  private getIndex(x: number, y: number, z: number): number {
-    return z * this.size.x * this.size.y + y * this.size.x + x;
+  private getIndex(coords: ImageCoordinates): number {
+    return coords.z * this.size.x * this.size.y + coords.y * this.size.x + coords.x;
   }
 
-  private isValidSize(x: number, y: number, z: number): boolean {
+  private isValidSize(size: VoxelImageSize): boolean {
     return (
-      Number.isInteger(x) && x > 0 &&
-      Number.isInteger(y) && y > 0 &&
-      Number.isInteger(z) && z > 0
+      Number.isInteger(size.x) && size.x > 0 &&
+      Number.isInteger(size.y) && size.y > 0 &&
+      Number.isInteger(size.z) && size.z > 0
     )
   }
 
-  private isValidCoordinates(x: number, y: number, z: number): boolean {
+  private isValidCoordinates(coords: ImageCoordinates): boolean {
     return (
-      Number.isInteger(x) && x >= 0 && x < this.size.x &&
-      Number.isInteger(y) && y >= 0 && y < this.size.y &&
-      Number.isInteger(z) && z >= 0 && z < this.size.z
+      Number.isInteger(coords.x) && coords.x >= 0 && coords.x < this.size.x &&
+      Number.isInteger(coords.y) && coords.y >= 0 && coords.y < this.size.y &&
+      Number.isInteger(coords.z) && coords.z >= 0 && coords.z < this.size.z
     );
   }
 };

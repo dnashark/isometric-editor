@@ -1,4 +1,4 @@
-import Renderer, { Face } from "./renderer";
+import Renderer, { Face, ScreenParameters } from "./renderer";
 import { VoxelImage } from "./voxelimage";
 
 export default class ViewportController {
@@ -6,6 +6,7 @@ export default class ViewportController {
   private canvas: HTMLCanvasElement;
   private image: VoxelImage<boolean>;
   private hitTestedFace: Face | null = null;
+  private viewport: ScreenParameters = { boxDiagonalWidth: 25, origin: { u: 250, v: 250 } };
 
   constructor(canvas: HTMLCanvasElement, image: VoxelImage<boolean>, renderer: Renderer) {
     this.canvas = canvas;
@@ -20,7 +21,7 @@ export default class ViewportController {
     const newHitTestedFace = this.renderer.hitTest({
       ctx: this.getContext(),
       image: this.image,
-      viewport: { boxDiagonalWidth: 20, origin: { u: 250, v: 250 } },
+      viewport: this.viewport,
       coords: { u, v, },
     });
 
@@ -41,7 +42,7 @@ export default class ViewportController {
     this.renderer.render({
       ctx: this.getContext(),
       image: this.image,
-      viewport: { boxDiagonalWidth: 25, origin: { u: 250, v: 250 } },
+      viewport: this.viewport,
       stroke: { width: 1, color: '#000' },
       intercept: { stroke: { width: 1, color: '#555' }, fill: '#fff' },
       overrides: this.hitTestedFace ? [{ face: this.hitTestedFace, color: 'red' }] : undefined,
