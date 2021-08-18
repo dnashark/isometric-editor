@@ -1,14 +1,20 @@
-import Renderer, { Face, ScreenParameters } from "./renderer";
-import { VoxelImage } from "./voxelimage";
+import Renderer, { Face, Facing, Lighting, ScreenParameters } from "./renderer";
+import { ColorVoxel, VoxelImage } from "./voxelimage";
 
 export default class ViewportController {
   private renderer: Renderer;
   private canvas: HTMLCanvasElement;
-  private image: VoxelImage<boolean>;
+  private image: VoxelImage<ColorVoxel>;
   private hitTestedFace: Face | null = null;
   private viewport: ScreenParameters = { boxDiagonalWidth: 25, origin: { u: 250, v: 250 } };
+  private lighting: Lighting = {
+    [Facing.LEFT]: .7,
+    [Facing.TOP]: .9,
+    [Facing.RIGHT]: 1,
+  };
+  
 
-  constructor(canvas: HTMLCanvasElement, image: VoxelImage<boolean>, renderer: Renderer) {
+  constructor(canvas: HTMLCanvasElement, image: VoxelImage<ColorVoxel>, renderer: Renderer) {
     this.canvas = canvas;
     this.image = image;
     this.renderer = renderer;
@@ -42,6 +48,7 @@ export default class ViewportController {
     this.renderer.render({
       ctx: this.getContext(),
       image: this.image,
+      lighting: this.lighting,
       viewport: this.viewport,
       stroke: { width: 1, color: '#000' },
       intercept: { stroke: { width: 1, color: '#555' }, fill: '#fff' },

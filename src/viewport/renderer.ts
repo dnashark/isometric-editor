@@ -1,11 +1,15 @@
-import {VoxelImage, ImageCoordinates} from './voxelimage';
+import {VoxelImage, ImageCoordinates, ColorVoxel} from './voxelimage';
 
 export default interface Renderer {
   render(params: RenderParameters): void,
   hitTest(params: HitTestParameters): Face | null,
 }
 
-export type Color = string;
+export interface Lighting {
+  readonly [Facing.LEFT]: number,
+  readonly [Facing.RIGHT]: number,
+  readonly [Facing.TOP]: number,
+}
 
 export interface ScreenCoordinates {
   u: number,
@@ -14,11 +18,11 @@ export interface ScreenCoordinates {
 
 export interface StrokeSettings {
   width: number,
-  color: Color,
+  color: string,
 }
 
 export interface DrawSettings {
-  fill?: Color,
+  fill?: string,
   stroke?: StrokeSettings,
 }
 
@@ -35,7 +39,7 @@ export interface Face {
 
 export interface FaceOverride {
   face: Face,
-  color: Color,
+  color: string,
 }
 
 export interface ScreenParameters {
@@ -45,14 +49,15 @@ export interface ScreenParameters {
 
 export interface HitTestParameters {
   ctx: CanvasRenderingContext2D,
-  image: VoxelImage<boolean>
+  image: VoxelImage<ColorVoxel>
   viewport: ScreenParameters,
   coords: ScreenCoordinates,
 }
 
 export interface RenderParameters {
   ctx: CanvasRenderingContext2D, 
-  image: VoxelImage<boolean>,
+  image: VoxelImage<ColorVoxel>,
+  lighting: Lighting,
   viewport: ScreenParameters,
   stroke?: StrokeSettings,
   intercept?: DrawSettings,

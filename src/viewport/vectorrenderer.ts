@@ -1,12 +1,12 @@
-import Renderer, { Color, Facing, Face, RenderParameters, HitTestParameters, ScreenParameters, ScreenCoordinates, StrokeSettings, DrawSettings } from './renderer';
-import { Dimension, ImageCoordinates, VoxelImageSize } from './voxelimage';
+import { HSVToRGB, RGB, RGBToHSV, RGBToString } from './color';
+import Renderer, { Facing, Face, RenderParameters, HitTestParameters, ScreenParameters, ScreenCoordinates, StrokeSettings, DrawSettings, Lighting } from './renderer';
+import { ImageDimension, ImageCoordinates, VoxelImageSize } from './voxelimage';
 
-const DIMENSIONS_AND_FACINGS: Array<[Dimension, Facing]> = [
-  [Dimension.X, Facing.RIGHT],
-  [Dimension.Y, Facing.LEFT],
-  [Dimension.Z, Facing.TOP]
+const DIMENSIONS_AND_FACINGS: Array<[ImageDimension, Facing]> = [
+  [ImageDimension.X, Facing.RIGHT],
+  [ImageDimension.Y, Facing.LEFT],
+  [ImageDimension.Z, Facing.TOP]
 ];
-
 
 export default class VectorRenderer implements Renderer {
   render(params: RenderParameters): void {
@@ -21,12 +21,13 @@ export default class VectorRenderer implements Renderer {
       }
     }
     for (let coords of this.inDrawOrder(params.image.size)) {
-      if (!params.image.get(coords)) continue;
+      const voxel = params.image.get(coords);
+      if (!voxel) continue;
 
       const overrides = this.getRenderOverrides(coords, params);
       for (let facing of Object.values(Facing)) {
         const face = { coords, facing, };
-        this.drawFace(face, this.getDrawSettings(face, params.stroke, overrides), params.viewport, params.ctx);
+        this.drawFace(face, this.getDrawSettings(voxel, params.lighting, facing, params.stroke, overrides), params.viewport, params.ctx);
       }
     }
   }
@@ -42,7 +43,6 @@ export default class VectorRenderer implements Renderer {
     }
     for (let dimensionAndFacing of DIMENSIONS_AND_FACINGS) {
       for (let coords of this.getPlane(dimensionAndFacing[0], -1, params.image.size)) {
-        const overrides = this.getRenderOverrides(coords, params);
         const face = { coords, facing: dimensionAndFacing[1] }
         const path = this.createFacePath(face, params.viewport, params.ctx);
         if (params.ctx.isPointInPath(path, params.coords.u, params.coords.v)) return face;
@@ -51,8 +51,8 @@ export default class VectorRenderer implements Renderer {
     return null;
   }
 
-  private * getPlane(fixedDimension: Dimension, value: number, size: VoxelImageSize): Generator<ImageCoordinates> {
-    const variableDimensions = Object.values(Dimension).filter(d => d != fixedDimension);
+  private * getPlane(fixedDimension: ImageDimension, value: number, size: VoxelImageSize): Generator<ImageCoordinates> {
+    const variableDimensions = Object.values(ImageDimension).filter(d => d != fixedDimension);
     for (let i = 0; i < size[variableDimensions[0]]; i++) {
       for (let j = 0; j < size[variableDimensions[1]]; j++) {
         const coords = { x: 0, y: 0, z: 0 };
@@ -64,24 +64,25 @@ export default class VectorRenderer implements Renderer {
     }
   }
 
-  private getDrawSettings(face: Face, stroke: StrokeSettings | undefined, overrides: Map<Facing, Color> | null): DrawSettings {
+  private lightColor(color: RGB, facing: Facing, lighting: Lighting): RGB {
+    const hsv = RGBToHSV(color);
+    hsv.v *= lighting[facing];
+    return HSVToRGB(hsv);
+  }
+
+  private getDrawSettings(color: RGB, lighting: Lighting, facing: Facing, stroke: StrokeSettings | undefined, overrides: Map<Facing, string> | null): DrawSettings {
+    const litColor = this.lightColor(color, facing, lighting);
     const settings: DrawSettings = {
       stroke: stroke,
-      fill: this.getFacingFill(face.facing),
+      fill: RGBToString(litColor),
     };
-    return this.overrideDrawSettings(settings, face.facing, overrides);
+    return this.overrideDrawSettings(settings, facing, overrides);
   }
 
-  private getFacingFill(facing: Facing): Color {
-    if (facing == Facing.RIGHT) return '#eee';
-    if (facing == Facing.TOP) return '#ccc';
-    return '#aaa';
-  }
-
-  private getRenderOverrides(coord: ImageCoordinates, params: RenderParameters): Map<Facing, Color> | null {
+  private getRenderOverrides(coord: ImageCoordinates, params: RenderParameters): Map<Facing, string> | null {
     if (!params.overrides) return null;
 
-    let overrides: Map<Facing, Color> | null = null;
+    let overrides: Map<Facing, string> | null = null;
     for (let override of params.overrides) {
       if (coord.x == override.face.coords.x &&
         coord.y == override.face.coords.y &&
@@ -93,7 +94,7 @@ export default class VectorRenderer implements Renderer {
     return overrides;
   }
 
-  private overrideDrawSettings(settings: DrawSettings, facing: Facing, overrides: Map<Facing, Color> | null): DrawSettings {
+  private overrideDrawSettings(settings: DrawSettings, facing: Facing, overrides: Map<Facing, string> | null): DrawSettings {
     if (!overrides) return settings;
     const overrideFill = overrides.get(facing);
     if (!overrideFill) return settings;

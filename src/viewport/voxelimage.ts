@@ -1,3 +1,5 @@
+import { RGB } from "./color";
+
 export interface VoxelImageSize {
   readonly x: number,
   readonly y: number,
@@ -10,11 +12,13 @@ export interface ImageCoordinates {
   z: number,
 }
 
-export enum Dimension {
+export enum ImageDimension {
   X = 'x',
   Y = 'y',
   Z = 'z',
 }
+
+export type ColorVoxel = Readonly<RGB> | null;
 
 export interface VoxelImage<Type> {
   readonly size: VoxelImageSize,
