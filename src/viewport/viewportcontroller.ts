@@ -8,8 +8,8 @@ export default class ViewportController {
   private hitTestedFace: Face | null = null;
   private viewport: ScreenParameters = { boxDiagonalWidth: 25, origin: { u: 250, v: 250 } };
   private lighting: Lighting = {
-    [Facing.LEFT]: .7,
-    [Facing.TOP]: .9,
+    [Facing.LEFT]: .6,
+    [Facing.TOP]: .85,
     [Facing.RIGHT]: 1,
   };
   
