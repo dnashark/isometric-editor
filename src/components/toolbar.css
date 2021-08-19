@@ -1,0 +1,28 @@
+.toolbar {
+  box-sizing: content-box;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 200px;
+  background: lightgrey;
+}
+
+.button {
+  background: #eee;
+  border: 2px solid black;
+  border-radius: 5px;
+  margin: 20px auto;
+  width: 100px;
+  height: 50px;
+  line-height: 50px;
+  vertical-align: middle;
+  font-size: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.button.disabled {
+  background-color: #ccc;
+  color:#777;
+}

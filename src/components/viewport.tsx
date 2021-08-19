@@ -1,45 +1,87 @@
 import React from "react";
 import { createRef } from "react";
-import BackingImage from "../viewport/backingvoxelimage";
+import BackingImage from "../state/backingvoxelimage";
 import VectorRenderer from "../viewport/vectorrenderer";
 import ViewportController from "../viewport/viewportcontroller";
-import { ColorVoxel } from "../viewport/voxelimage";
+import { ColorVoxel } from "../state/voxelimage";
+import './viewport.css';
+import AppState from "../state/appstate";
+import { Unlistener } from "../state/eventsource";
 
-// TODO: Should pass down stuff for controller
 interface ViewportComponentProps {
-  width: number,
-  height: number,
+  appState: AppState,
 };
 
-export default class ViewportComponent extends React.Component<ViewportComponentProps> {
+interface ViewportComponentState {
+  showCanvas: boolean,
+}
+
+// TODO: Handle resizing
+
+export default class ViewportComponent extends React.Component<ViewportComponentProps, ViewportComponentState> {
   private canvasRef = createRef<HTMLCanvasElement>();
   private viewportController: ViewportController | null = null;
+  private imageChangedUnlistener: Unlistener | null = null;
+
+  constructor(props: ViewportComponentProps) {
+    super(props);
+    this.state = {
+      showCanvas: !!props.appState.image,
+    };
+  }
 
   render() {
-    return <canvas
-      ref={this.canvasRef}
-      width={this.props.width}
-      height={this.props.height}
-      style={{ border: '1px solid black' }}
-      onMouseMove={this.onMouseMove.bind(this)}></canvas>
+    return !this.state.showCanvas ? null : (
+      <canvas id="viewport" ref={this.canvasRef} onMouseMove={this.onMouseMove.bind(this)}></canvas>
+    );
   }
 
   componentDidMount() {
-    const voxelImage = new BackingImage<ColorVoxel>({ x: 20, y: 20, z: 20 }, null);
-    for (let x of [10, 11, 12]) {
-      for (let y of [10, 11, 12]) {
-        voxelImage.set({ x, y, z: 0 }, {r: .7, g: .7, b: .1});
-      }
+    this.updateViewportController(this.props.appState);
+    if (this.state.showCanvas) {
+      this.canvasRef.current!.width = this.canvasRef.current!.clientWidth;
+      this.canvasRef.current!.height = this.canvasRef.current!.clientHeight;
     }
-    voxelImage.set({ x: 11, y: 11, z: 1 }, {r: .7, g: .1, b: .7});
-    const renderer = new VectorRenderer();
-    this.viewportController = new ViewportController(this.canvasRef.current!, voxelImage, renderer);
+
+    this.imageChangedUnlistener = this.props.appState.imageChanged.listen(
+      () => this.onImageChanged(this.props.appState));
   }
 
-  onMouseMove(event: React.MouseEvent<HTMLCanvasElement>) {
+  componentDidUpdate(prevProps: ViewportComponentProps) {
+    if (this.props.appState != prevProps.appState) throw 'We should never change AppState.';
+
+    if (this.state.showCanvas) {
+      this.canvasRef.current!.width = this.canvasRef.current!.clientWidth;
+      this.canvasRef.current!.height = this.canvasRef.current!.clientHeight;
+    }
+  }
+
+  componentWillUnmount() {
+    this.viewportController = null;
+    if (this.imageChangedUnlistener) {
+      this.imageChangedUnlistener();
+      this.imageChangedUnlistener = null;
+    }
+  }
+
+  private onImageChanged(appState: AppState) {
+    this.setState({ showCanvas: !!appState.image }, () => {
+      this.updateViewportController(appState);
+    });
+  }
+
+  private onMouseMove(event: React.MouseEvent<HTMLCanvasElement>) {
     // TODO: Is this correct?
-    this.viewportController?.onMouseMove(
-      event.clientX - this.canvasRef.current!.offsetLeft,
-      event.clientY - this.canvasRef.current!.offsetTop);
+    const boundingRect = this.canvasRef.current!.getBoundingClientRect();
+    this.viewportController!.onMouseMove(
+      event.clientX - boundingRect.x,
+      event.clientY - boundingRect.y);
+  }
+
+  private updateViewportController(appState: AppState) {
+    const image = appState.image;
+    this.viewportController = image
+      ? new ViewportController(this.canvasRef.current!, image, new VectorRenderer())
+      : null;
   }
 }

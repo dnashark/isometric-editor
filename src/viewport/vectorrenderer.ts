@@ -1,6 +1,6 @@
-import { HSVToRGB, RGB, RGBToHSV, RGBToString } from './color';
+import { HSVToRGB, RGB, RGBToHSV, RGBToString } from '../state/color';
 import Renderer, { Facing, Face, RenderParameters, HitTestParameters, ScreenParameters, ScreenCoordinates, StrokeSettings, DrawSettings, Lighting } from './renderer';
-import { ImageDimension, ImageCoordinates, VoxelImageSize } from './voxelimage';
+import { ImageDimension, ImageCoordinates, VoxelImageSize } from '../state/voxelimage';
 
 const DIMENSIONS_AND_FACINGS: Array<[ImageDimension, Facing]> = [
   [ImageDimension.X, Facing.RIGHT],

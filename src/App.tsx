@@ -1,9 +1,11 @@
+import React from 'react';
 import Page from './components/page';
+import AppState from './state/appstate';
 
-function App() {
-  return (
-    <Page></Page>
-  );
+export default class App extends React.Component {
+  private appState: AppState = new AppState();
+
+  render() {
+    return <Page appState={this.appState}></Page>
+  }
 }
-
-export default App;

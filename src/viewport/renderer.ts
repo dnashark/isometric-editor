@@ -1,4 +1,4 @@
-import {VoxelImage, ImageCoordinates, ColorVoxel} from './voxelimage';
+import {VoxelImage, ImageCoordinates, ColorVoxel} from '../state/voxelimage';
 
 export default interface Renderer {
   render(params: RenderParameters): void,

@@ -1,5 +1,5 @@
 import Renderer, { Face, Facing, Lighting, ScreenParameters } from "./renderer";
-import { ColorVoxel, VoxelImage } from "./voxelimage";
+import { ColorVoxel, VoxelImage } from "../state/voxelimage";
 
 export default class ViewportController {
   private renderer: Renderer;

@@ -1,5 +1,5 @@
 import { DEBUG } from '../consts';
-import { ImageCoordinates, VoxelImage, VoxelImageSize } from './voxelimage';
+import { ImageCoordinates, VoxelImage, VoxelImageSize } from './voxelimage'
 
 export default class BackingImage<Type> implements VoxelImage<Type> {
   readonly size: VoxelImageSize;
