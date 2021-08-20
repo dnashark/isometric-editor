@@ -1,23 +1,23 @@
 import { DEBUG } from '../consts';
-import { ImageCoordinates, VoxelImage, VoxelImageSize } from './voxelimage'
+import { ColorVoxel, ImageCoordinates, VoxelImage, VoxelImageSize } from './voxelimage'
 
-export default class BackingImage<Type> implements VoxelImage<Type> {
+export default class BackingImage implements VoxelImage {
   readonly size: VoxelImageSize;
-  private image: Type[];
+  private image: ColorVoxel[];
 
-  constructor(size: VoxelImageSize, value: Type) {
+  constructor(size: VoxelImageSize, value: ColorVoxel) {
     if (DEBUG && !this.isValidSize(size)) throw `Invalid size {x: ${size.x}, y: ${size.y}, z: ${size.z}}`;
     this.size = size;
     this.image = new Array(size.x * size.y * size.z);
     this.image.fill(value);
   }
 
-  get(coords: ImageCoordinates): Type {
+  get(coords: ImageCoordinates): ColorVoxel {
     if (DEBUG && !this.isValidCoordinates(coords)) throw `Invalid coordinates {x: ${coords.x}, y: ${coords.y}, z: ${coords.z}}`;
     return this.image[this.getIndex(coords)];
   }
 
-  set(coords: ImageCoordinates, value: Type): void {
+  set(coords: ImageCoordinates, value: ColorVoxel): void {
     if (DEBUG && !this.isValidCoordinates(coords)) throw `Invalid coordinates {x: ${coords.x}, y: ${coords.y}, z: ${coords.z}}`;
     this.image[this.getIndex(coords)] = value;
   }

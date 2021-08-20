@@ -7,6 +7,7 @@ import { ColorVoxel } from "../state/voxelimage";
 import './viewport.css';
 import AppState from "../state/appstate";
 import { Unlistener } from "../state/eventsource";
+import { ScreenCoordinates } from "../viewport/renderer";
 
 interface ViewportComponentProps {
   appState: AppState,
@@ -32,7 +33,9 @@ export default class ViewportComponent extends React.Component<ViewportComponent
 
   render() {
     return !this.state.showCanvas ? null : (
-      <canvas id="viewport" ref={this.canvasRef} onMouseMove={this.onMouseMove.bind(this)}></canvas>
+      <canvas id="viewport" ref={this.canvasRef}
+        onMouseMove={this.onMouseMove.bind(this)}
+        onMouseDown={this.onMouseDown.bind(this)}></canvas>
     );
   }
 
@@ -71,17 +74,28 @@ export default class ViewportComponent extends React.Component<ViewportComponent
   }
 
   private onMouseMove(event: React.MouseEvent<HTMLCanvasElement>) {
+    this.viewportController!.onMouseMove(this.getScreenCoords(event));
+  }
+
+  private onMouseDown(event: React.MouseEvent<HTMLCanvasElement>) {
+    if (event.button == 0) {
+      this.viewportController!.onMouseDown(this.getScreenCoords(event));
+    }
+  }
+
+  private getScreenCoords(event: React.MouseEvent<HTMLCanvasElement>): ScreenCoordinates {
     // TODO: Is this correct?
     const boundingRect = this.canvasRef.current!.getBoundingClientRect();
-    this.viewportController!.onMouseMove(
-      event.clientX - boundingRect.x,
-      event.clientY - boundingRect.y);
+    return {
+      u: event.clientX - boundingRect.x,
+      v: event.clientY - boundingRect.y
+    };
   }
 
   private updateViewportController(appState: AppState) {
     const image = appState.image;
     this.viewportController = image
-      ? new ViewportController(this.canvasRef.current!, image, new VectorRenderer())
+      ? new ViewportController(this.canvasRef.current!, appState, new VectorRenderer())
       : null;
   }
 }

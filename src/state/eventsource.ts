@@ -1,5 +1,3 @@
-export type EventHandler = (e?: any) => void;
-
 export type Unlistener = () => void;
 
 export class EventSource<ArgType> {

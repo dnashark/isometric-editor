@@ -26,3 +26,7 @@
   background-color: #ccc;
   color:#777;
 }
+
+.button.selected {
+  border-color: #ee4;
+}
