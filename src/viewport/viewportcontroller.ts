@@ -43,12 +43,12 @@ export default class ViewportController {
     if (this.appState.getSelectedTool() == Tool.ADD) {
       const coords = getCoordsOpposingFace(face);
       if (isInImage(coords, this.appState.image.size) && !this.appState.image.get(coords)) {
-        this.appState.image.set(coords, { r: 0, g: 1, b: 0 });
+        this.appState.setVoxel.do([coords, { r: 0, g: 1, b: 0 }]);
         this.updateCursor(true);
       }
     } else if (this.appState.getSelectedTool() == Tool.DELETE) {
       if (isInImage(face.coords, this.appState.image.size) && this.appState.image.get(face.coords)) {
-        this.appState.image.set(face.coords, null);
+        this.appState.setVoxel.do([face.coords, null]);
         this.updateCursor(true);
       }
     }

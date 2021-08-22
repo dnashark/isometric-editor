@@ -13,6 +13,7 @@ interface ToolbarProps {
 interface ToolbarState {
   newDisabled: boolean,
   closeDisabled: boolean,
+  rotateDisabled: boolean,
   addDisabled: boolean,
   deleteDisabled: boolean,
   selectedTool: Tool | null,
@@ -27,6 +28,7 @@ export default class Toolbar extends React.Component<ToolbarProps, ToolbarState>
     this.state = {
       newDisabled: props.appState.newImage.isDisabled(),
       closeDisabled: props.appState.closeImage.isDisabled(),
+      rotateDisabled: props.appState.setRotation.isDisabled(),
       addDisabled: props.appState.isToolDisabled(Tool.ADD),
       deleteDisabled: props.appState.isToolDisabled(Tool.DELETE),
       selectedTool: props.appState.getSelectedTool(),
@@ -45,15 +47,19 @@ export default class Toolbar extends React.Component<ToolbarProps, ToolbarState>
           disabled: this.state.closeDisabled,
         })} onClick={() => this.props.appState.closeImage.do()}>Close</div>
         <div className={classnames({
-          button:true,
+          button: true,
+          disabled: this.state.rotateDisabled,
+        })} onClick={() => this.props.appState.setRotation.do((this.props.appState.getRotation()! + 1) % 4)}>Rotate</div>
+        <div className={classnames({
+          button: true,
           disabled: this.state.addDisabled,
           selected: this.props.appState.getSelectedTool() == Tool.ADD,
-        })} onClick={() =>this.props.appState.selectTool(Tool.ADD)}>Add</div>
+        })} onClick={() => this.props.appState.selectTool(Tool.ADD)}>Add</div>
         <div className={classnames({
-          button:true,
+          button: true,
           disabled: this.state.deleteDisabled,
           selected: this.props.appState.getSelectedTool() == Tool.DELETE
-        })} onClick={() =>this.props.appState.selectTool(Tool.DELETE)}>DELETE</div>
+        })} onClick={() => this.props.appState.selectTool(Tool.DELETE)}>DELETE</div>
       </div>
     );
   }
@@ -61,6 +67,7 @@ export default class Toolbar extends React.Component<ToolbarProps, ToolbarState>
   componentDidMount() {
     this.listenForControllerActionEnabled(this.props.appState.newImage, 'newDisabled');
     this.listenForControllerActionEnabled(this.props.appState.closeImage, 'closeDisabled');
+    this.listenForControllerActionEnabled(this.props.appState.setRotation, 'rotateDisabled');
     this.listenForToolEnabled(this.props.appState, Tool.ADD, 'addDisabled');
     this.listenForToolEnabled(this.props.appState, Tool.DELETE, 'deleteDisabled');
     this.listenForToolSelected(this.props.appState);
@@ -71,7 +78,7 @@ export default class Toolbar extends React.Component<ToolbarProps, ToolbarState>
     this.unlisteners = [];
   }
 
-  listenForControllerActionEnabled(action: ControllerAction, stateKey: keyof ToolbarState) {
+  listenForControllerActionEnabled(action: ControllerAction<any>, stateKey: keyof ToolbarState) {
     const callback = (enabled: boolean) => this.setState({
       [stateKey]: !enabled
     } as unknown as Pick<ToolbarState, keyof ToolbarState>);
